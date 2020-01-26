@@ -1,4 +1,7 @@
-# Balanced
+<div align="center">
+ <img src="images/logo.png" width="250"> 
+</div>
+
 Organize stimulus lists for psychological experiments
 
 ## Overview
