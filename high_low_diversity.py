@@ -1,61 +1,8 @@
-"""
-Re-used code that first appeared here:
-https://stackoverflow.com/questions/25285792/generate-all-permutations-of-a-list-without-adjacent-equal-elements
-
-"""
-
-
-import random
-from typing import List, Any, Set, Tuple, Union
+from typing import List, Any, Set, Tuple
 import itertools
 
-from collections import Counter
-from operator import itemgetter
-
-
-def get_mode(count):
-    return max(count.items(), key=itemgetter(1))[0]
-
-
-def enum2(prefix, x, count, total, mode):
-    prefix.append(x)
-    count_x = count[x]
-    if count_x == 1:
-        del count[x]
-    else:
-        count[x] = count_x - 1
-    yield from enum1(prefix, count, total - 1, mode)
-    count[x] = count_x
-    del prefix[-1]
-
-
-def enum1(prefix, count, total, mode):
-    if total == 0:
-        yield tuple(prefix)
-        return
-    if count[mode] * 2 - 1 >= total and [mode] != prefix[-1:]:
-        yield from enum2(prefix, mode, count, total, mode)
-    else:
-        defect_okay = not prefix or count[prefix[-1]] * 2 > total
-        mode = get_mode(count)
-        for x in list(count.keys()):
-            if defect_okay or [x] != prefix[-1:]:
-                yield from enum2(prefix, x, count, total, mode)
-
-
-def enum(seq):
-    """generate all possible permutations of "seq" such that no adjacent elements can be identical"""
-    count = Counter(seq)
-    if count:
-        yield from enum1([], count, sum(count.values()), get_mode(count))
-    else:
-        yield ()
-
-
-def permute_but_not_repeat(seq):
-    """randomly chose a permutation of "seq" in which no adjacent elements are identical """
-    solutions = list(enum(seq))
-    return random.choice(solutions)
+from decider import Decider
+from permute_without_identical_adjacencies import pick_permutation_randomly
 
 
 def create_random_low_diversity_list(num_repetitions: int,
@@ -79,8 +26,8 @@ def create_random_low_diversity_list(num_repetitions: int,
     if not len(v1) == len(v2):
         raise ValueError('All sets must have same length')
 
-    # start by creating a valid sequence of elements from variable 1
-    v1_solution = permute_but_not_repeat(list(v1) * num_repetitions)
+    # create a sequence of elements from variable 1 such that no adjacent elements are repeated
+    v1_solution = pick_permutation_randomly(list(v1) * num_repetitions)
 
     # define mapping between v1 and v2
     v1i2cycle = {v1i: itertools.cycle(v2i)
@@ -88,7 +35,9 @@ def create_random_low_diversity_list(num_repetitions: int,
                                                        zip(itertools.cycle(sorted(v1)),
                                                            itertools.chain([None] * offset, v2)))}
 
-    # pair each element in v1_solution with elements from v2
+    # pair each element in v1_solution with elements from v2.
+    # because v1 element is always paired with same v2 element,
+    # this guarantees that no adjacent v2 elements are identical
     res = []
     for v1i in v1_solution:
         res.append((v1i, next(v1i2cycle[v1i])))
@@ -115,16 +64,20 @@ def create_random_high_diversity_list(num_repetitions: int,
     if not len(v1) == len(v2):
         raise ValueError('All sets must have same length')
 
-    # start by creating a valid sequence of elements from variable 1
-    v1_solution = permute_but_not_repeat(list(v1) * num_repetitions)
+    # create a sequence of elements from variable 1 such that no adjacent elements are repeated
+    v1_solution = pick_permutation_randomly(list(v1) * num_repetitions)
 
-    # define mapping between v1 and v2
-    v1i2cycle = {v1i: itertools.cycle(random.sample(v2, k=len(v2))) for v1i in v1}
+    # each identical element in v1_solution is assigned same Decider instance:
+    # the Decider ensures that no identical element in v1_solution is paired more than once with element from var 2
+    v1i2decider = {v1i: Decider(v1i, list(v2)) for v1i in v1}
+    deciders = [v1i2decider[v1i] for v1i in v1_solution]
 
-    # pair each element in v1_solution with elements from v2
+    # pair elements from v1 solution with elements from var 2, such that no adjacent var 2 elements are identical
     res = []
-    for v1i in v1_solution:
-        res.append((v1i, next(v1i2cycle[v1i])))
+    for n, decider in enumerate(deciders):
+        excluded = res[-1][1] if res else None
+        sample = (decider.v1i, decider.pick(excluded))
+        res.append(sample)
 
     return res
 
@@ -133,10 +86,10 @@ var1 = {'a', 'b', 'c', 'd'}
 var2 = {'1', '2', '3', '4'}
 
 print('low diversity:')
-print(create_random_low_diversity_list(2, 0, var1, var2))
-print(create_random_low_diversity_list(2, 1, var1, var2))
-print(create_random_low_diversity_list(2, 2, var1, var2))
-print(create_random_low_diversity_list(2, 3, var1, var2))
+print(create_random_low_diversity_list(4, 0, var1, var2))
+print(create_random_low_diversity_list(4, 1, var1, var2))
+print(create_random_low_diversity_list(4, 2, var1, var2))
+print(create_random_low_diversity_list(4, 3, var1, var2))
 
 print('high diversity:')
 print(create_random_high_diversity_list(4, var1, var2))
