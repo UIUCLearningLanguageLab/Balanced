@@ -15,7 +15,7 @@ def create_random_low_diversity_list(num_repetitions: int,
     such that:
     1) any element occurs exactly "repetitions" times, and
     2) each element in "v1" is always paired with the same element from "v2",
-    3) no adjacent elements (from var 1) are identical
+    3) no adjacent var 1 or var 2 elements are identical
     :param num_repetitions: number of times an item-pair is repeated
     :param offset: influences which element in variable 1 is paired to which element in variable 2
     :param v1: set of elements in first variable (e.g. words)
@@ -54,7 +54,7 @@ def create_random_high_diversity_list(num_repetitions: int,
     such that:
     1) any element occurs exactly "repetitions" times, and
     2) each element in "v1" is paired with each element from "v2" equally often,
-    3) no adjacent elements (from var 1) are identical
+    3) no adjacent var 1 or var 2 elements are identical
     :param num_repetitions: number of times an item-pair is repeated
     :param v1: set of elements in first variable (e.g. words)
     :param v2: set of elements in second variable (e.g. images)
