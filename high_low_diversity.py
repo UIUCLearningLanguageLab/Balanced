@@ -68,7 +68,7 @@ def create_random_low_diversity_list(num_repetitions: int,
     such that:
     1) any element occurs exactly "repetitions" times, and
     2) each element in "v1" is always paired with the same element from "v2",
-    3) no adjacent elements (from var 1 or 2) are identical
+    3) no adjacent elements (from var 1) are identical
     :param num_repetitions: number of times an item-pair is repeated
     :param offset: influences which element in variable 1 is paired to which element in variable 2
     :param v1: set of elements in first variable (e.g. words)
@@ -105,7 +105,7 @@ def create_random_high_diversity_list(num_repetitions: int,
     such that:
     1) any element occurs exactly "repetitions" times, and
     2) each element in "v1" is paired with each element from "v2" equally often,
-    3) no adjacent elements (from var 1 or 2) are identical
+    3) no adjacent elements (from var 1) are identical
     :param num_repetitions: number of times an item-pair is repeated
     :param v1: set of elements in first variable (e.g. words)
     :param v2: set of elements in second variable (e.g. images)
@@ -119,7 +119,7 @@ def create_random_high_diversity_list(num_repetitions: int,
     v1_solution = permute_but_not_repeat(list(v1) * num_repetitions)
 
     # define mapping between v1 and v2
-    v1i2cycle = {v1i: itertools.cycle(v2) for v1i in v1}
+    v1i2cycle = {v1i: itertools.cycle(random.sample(v2, k=len(v2))) for v1i in v1}
 
     # pair each element in v1_solution with elements from v2
     res = []
@@ -133,10 +133,10 @@ var1 = {'a', 'b', 'c', 'd'}
 var2 = {'1', '2', '3', '4'}
 
 print('low diversity:')
-print(create_random_low_diversity_list(4, 0, var1, var2))
-print(create_random_low_diversity_list(4, 1, var1, var2))
-print(create_random_low_diversity_list(4, 2, var1, var2))
-print(create_random_low_diversity_list(4, 3, var1, var2))
+print(create_random_low_diversity_list(2, 0, var1, var2))
+print(create_random_low_diversity_list(2, 1, var1, var2))
+print(create_random_low_diversity_list(2, 2, var1, var2))
+print(create_random_low_diversity_list(2, 3, var1, var2))
 
 print('high diversity:')
 print(create_random_high_diversity_list(4, var1, var2))
