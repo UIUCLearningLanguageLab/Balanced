@@ -1,11 +1,9 @@
 import random
 
-var1 = {'a', 'b', 'c', 'd'}
-var2 = {'1', '2', '3', '4'}
-var3 = {'@', '#', '&', '-'}
 
 def all_same(items):
     return all(x == items[0] for x in items)
+
 
 def create_random_list(num: int, *vs):
     """
@@ -28,6 +26,11 @@ def create_random_list(num: int, *vs):
         res.append(sample)
 
     return res
+
+
+var1 = {'a', 'b', 'c', 'd'}
+var2 = {'1', '2', '3', '4'}
+var3 = {'@', '#', '&', '-'}
 
 print(create_random_list(16, var1, var2))
 print(create_random_list(16, var1, var2, var3))
